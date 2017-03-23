@@ -1,0 +1,19 @@
+@font-face{  
+  font-family: "7barsp";
+  src: local("7barsp"),
+       url(".\7barsp.ttf");
+}
+body,#container{
+    margin:0;
+    height:100%;
+    width:100%;
+    background-color:black;
+
+}
+#container{
+    margin:auto;
+}
+#bg,#bar{
+    position:absolute;
+    top:0;
+}
