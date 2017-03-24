@@ -4,8 +4,6 @@
  *
  */
 require("function.php");
-require("lib/Requests.php");
-Requests::register_autoloader(); //init requests.php
 $op = new dataOpt();
 
 unset($op);

@@ -17,7 +17,7 @@
  *              如果遇到意外错误，脚本将退出。
  *      ls
  *          Description
- *              列出完整的30个数据。
+ *              列出完整的数据。
  *          Return
  *              如果执行成功，返回得到的数据。
  *              如果遇到意外错误，脚本将退出。
@@ -27,9 +27,9 @@ class dataOpt{
     private $filePointer;
     private $fileName = "eleBalance.data";
     function __construct(){
-        $this->filePointer = fopen($this->fileName,"r+");
+        $this->filePointer = fopen($this->fileName,"a+");
         if($this->filePointer == false){
-            exit("用户错误：Failed to open file '" . $this->fileName . "' in mode 'r+'");
+            exit("用户错误：Failed to open file '" . $this->fileName . "' in mode 'a+'");
         }
     }
     function __destruct(){
