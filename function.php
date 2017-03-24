@@ -1,5 +1,5 @@
 <?php
-/* class dataOpt
+/* class dataOp
  *  Description
  *      向预先定义的文件(eleBalance.data)写入数据或读取数据。
  *      每行包括两个数据：记录时间和电费余额。
@@ -22,7 +22,7 @@
  *              如果执行成功，返回得到的数据。
  *              如果遇到意外错误，脚本将退出。
  */
-class dataOpt{
+class dataOp{
     private $lengthLimit = 30;
     private $filePointer;
     private $fileName = "eleBalance.data";
@@ -61,5 +61,38 @@ class dataOpt{
             $tableOfContent[$pos] = explode("\t",$tableOfContent[$pos]);
         }
         return $tableOfContent;
+    }
+}
+/* class webOp
+ *  Description
+ *      通过curl发送简单的POST请求。
+ *  Interface
+ *      post
+ *          Description
+ *              发送一个最简单的post请求。
+ *
+ */
+class webOp{
+    private $ch;
+    function __construct(){
+        $this->ch = curl_init();
+    }
+    function __destruct()
+    {
+        curl_close($this->ch);
+    }
+    function __call($name, $args){  //用于实现函数重载的膜法方法
+        if($name == "post"){
+            if(count($args) == 1){
+                $this->simple_post($args[0]);
+            }
+        }
+    }
+    public function simple_post($url){
+        curl_setopt_array($this->ch, array(
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true
+        ));
+        return curl_exec($this->ch);
     }
 }

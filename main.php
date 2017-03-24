@@ -4,6 +4,6 @@
  *
  */
 require("function.php");
-$op = new dataOpt();
+$op = new dataOp();
 
 unset($op);
