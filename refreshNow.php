@@ -18,6 +18,7 @@ for($i=3;$i>0;$i--){
     if($op->Login()){
        break;
     }
+    exit("无法完成登录");
 }
 
 //3 times trial to get data
@@ -26,6 +27,7 @@ for($i=3;$i>0;$i--){
     if($data != false){
         break;
     }
+    exit("无法获取数据");
 }
 
 //decode data
