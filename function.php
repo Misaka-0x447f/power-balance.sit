@@ -39,7 +39,7 @@ class dataOp{
     }
     public function push($time, $balance){
         $content = file($this->fileName,FILE_SKIP_EMPTY_LINES | FILE_IGNORE_NEW_LINES); //逐行读取目标文件。将跳过空行，并且不会将换行符读入。
-        if($content == false){
+        if($content == false){ //epic bug
             $this->openFile("x+");
             $this->closeFile();
         }
