@@ -37,8 +37,3 @@ unset($op);
 
 $op = new dataOp();
 $op->push(time(),$data->ele_rest);
-
-//打印目前已有数据用于诊断
-echo "dataInTable<br/>";
-print_r($op->ls());
-unset($op);
