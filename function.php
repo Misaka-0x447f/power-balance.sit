@@ -41,14 +41,14 @@ class dataOp{
         rewind($this->filePointer); //重置文件指针到文件头。
         $content = file($this->fileName,FILE_SKIP_EMPTY_LINES | FILE_IGNORE_NEW_LINES); //逐行读取。将跳过空行，并且不会将换行符读入。
         rewind($this->filePointer); //重置文件指针到文件头，准备好写入。
-        array_push($content, array($time, $balance));
+        array_push($content, $time.",".$balance);
         if(count($content) >= $this->lengthLimit){
             $pos = 1; //指定写入开始点:要丢弃第一行吗？
         }else{
             $pos = 0;
         }
         for(;$pos<count($content);$pos++){
-            if(fprintf($this->filePointer, "%s\t%s\n", $content[$pos][0], $content[$pos][1]) == 0){
+            if(!fprintf($this->filePointer, "%s", $content[$pos])){
                 echo "用户警告：Failed to write file " . $this->fileName;
             }
         }
@@ -58,7 +58,7 @@ class dataOp{
         rewind($this->filePointer); //重置文件指针到文件头。
         $tableOfContent = file($this->fileName,FILE_SKIP_EMPTY_LINES | FILE_IGNORE_NEW_LINES); //逐行读取。将跳过空行，并且不会将换行符读入。
         for($pos = 0;$pos < count($tableOfContent);$pos++){
-            $tableOfContent[$pos] = explode("\t",$tableOfContent[$pos]);
+            $tableOfContent[$pos] = explode(",",$tableOfContent[$pos]);
         }
         return $tableOfContent;
     }
