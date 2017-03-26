@@ -65,12 +65,17 @@ class dataOp{
 }
 /* class webOp
  *  Description
- *      通过curl发送简单的POST请求。
+ *      通过curl发送简单的web请求。
  *  Interface
  *      post
  *          Description
- *              发送一个最简单的post请求。
- *
+ *              发送post请求。
+ *          Param
+ *              仅接受一个数组。
+ *              "url" => 要请求的url
+ *          Return
+ *              如果成功，返回True
+ *              如果失败，抛出一个异常。
  */
 class webOp{
     private $ch;
@@ -81,14 +86,14 @@ class webOp{
     {
         curl_close($this->ch);
     }
-    function __call($name, $args){  //用于实现函数重载的膜法方法
-        if($name == "post"){
-            if(count($args) == 1){
-                $this->simple_post($args[0]);
-            }
+    public function post($argArray){
+        if(count($argArray) == 1 and isset($argArray["url"])){
+            return $this->simple_post($argArray["url"]);
+        }else{
+            throw new Exception("webOp.post异常：没有为此调用设置重载");
         }
     }
-    public function simple_post($url){
+    private function simple_post($url){
         curl_setopt_array($this->ch, array(
             CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true
