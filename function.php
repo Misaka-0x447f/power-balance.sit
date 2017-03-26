@@ -28,13 +28,13 @@ class dataOp{
     private $fileName = "eleBalance.data";
     function __construct(){
         $this->filePointer = fopen($this->fileName,"a+");
-        if($this->filePointer == false){
+        if(!$this->filePointer){
             exit("用户错误：Failed to open file '" . $this->fileName . "' in mode 'a+'");
         }
     }
     function __destruct(){
-        if(fclose($this->filePointer)){
-            exit("用户错误：Failed to open file " . $this->fileName);
+        if(!fclose($this->filePointer)){
+            exit("用户错误：Failed to close file " . $this->fileName);
         }
     }
     public function push($time, $balance){
