@@ -135,8 +135,9 @@ class SIT
     }
 }
 
-
+/* 调用示例
 $c = new SIT("1610400440", "ptunlock233333");
 
 $c->Login();
 print_r($c->GetEle(105409));
+*/
