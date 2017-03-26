@@ -1,7 +1,7 @@
 <?php
 /* class dataOp
  *  Description
- *      向预先定义的文件(eleBalance.data)写入数据或读取数据。
+ *      向预先定义的文件写入数据或读取数据。
  *      每行包括两个数据：记录时间和电费余额。
  *      数据的最大行数已在$lengthLimit中定义。
  *  Interface
@@ -25,37 +25,36 @@
 class dataOp{
     private $lengthLimit = 30;
     private $filePointer;
-    private $fileName = "eleBalance.data";
-    function __construct(){
-        $this->filePointer = fopen($this->fileName,"a+");
+    private $fileName = "eleBalance.csv";
+    private function openFile($mode){
+        $this->filePointer = fopen($this->fileName,$mode);
         if(!$this->filePointer){
-            exit("用户错误：Failed to open file '" . $this->fileName . "' in mode 'a+'");
+            exit("用户错误：Failed to open file '" . $this->fileName . "' in mode '"."'");
         }
     }
-    function __destruct(){
+    private function closeFile(){
         if(!fclose($this->filePointer)){
             exit("用户错误：Failed to close file " . $this->fileName);
         }
     }
     public function push($time, $balance){
-        rewind($this->filePointer); //重置文件指针到文件头。
-        $content = file($this->fileName,FILE_SKIP_EMPTY_LINES | FILE_IGNORE_NEW_LINES); //逐行读取。将跳过空行，并且不会将换行符读入。
-        rewind($this->filePointer); //重置文件指针到文件头，准备好写入。
-        array_push($content, $time.",".$balance);
+        $content = file($this->fileName,FILE_SKIP_EMPTY_LINES | FILE_IGNORE_NEW_LINES); //逐行读取目标文件。将跳过空行，并且不会将换行符读入。
+        array_push($content, $time.",".$balance); //插入最新数据
         if(count($content) >= $this->lengthLimit){
             $pos = 1; //指定写入开始点:要丢弃第一行吗？
         }else{
             $pos = 0;
         }
+        $this->openFile("w");
         for(;$pos<count($content);$pos++){
-            if(!fprintf($this->filePointer, "%s", $content[$pos])){
+            if(!fprintf($this->filePointer, "%s\n", $content[$pos])){
                 echo "用户警告：Failed to write file " . $this->fileName;
             }
         }
+        $this->closeFile();
         return true;
     }
     public function ls(){
-        rewind($this->filePointer); //重置文件指针到文件头。
         $tableOfContent = file($this->fileName,FILE_SKIP_EMPTY_LINES | FILE_IGNORE_NEW_LINES); //逐行读取。将跳过空行，并且不会将换行符读入。
         for($pos = 0;$pos < count($tableOfContent);$pos++){
             $tableOfContent[$pos] = explode(",",$tableOfContent[$pos]);
