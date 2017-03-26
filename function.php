@@ -39,6 +39,10 @@ class dataOp{
     }
     public function push($time, $balance){
         $content = file($this->fileName,FILE_SKIP_EMPTY_LINES | FILE_IGNORE_NEW_LINES); //逐行读取目标文件。将跳过空行，并且不会将换行符读入。
+        if($content == false){
+            $this->openFile("x+");
+            $this->closeFile();
+        }
         array_push($content, $time.",".$balance); //插入最新数据
         if(count($content) >= $this->lengthLimit){
             $pos = 1; //指定写入开始点:要丢弃第一行吗？
