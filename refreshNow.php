@@ -13,7 +13,9 @@ require("lib/getFeeInfo.php");
 //拉取电费余额的json
 $op = new SIT("1610400440", "ptunlock233333");
 $op->Login();
-print_r($op->GetEle(105409));
+$data = json_decode($op->GetEle(105409));
+unset($op);
 
-//$op = new dataOp();
-//unset($op);
+$op = new dataOp();
+$op->push(time(),$data->ele_rest);
+unset($op);
