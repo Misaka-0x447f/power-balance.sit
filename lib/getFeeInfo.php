@@ -48,14 +48,21 @@ class SIT
         } else if (count($match) == 1) {
             $cookie = $match[0];
         } else {
-            die("获取cookie错误");
+            echo "获取cookie错误";
+            return false;
         }
         $this->Cookies["JSESSIONID"] = $cookie;
+        return true;
     }
 
     public function Login()
     {
-        $this->_login_init();
+        //3 times trial
+        for($i=3;$i>0;$i--){
+            if($this->_login_init()){
+                break;
+            }
+        }
 
         $ch = curl_init($this->LoginUrl);
 
@@ -79,9 +86,11 @@ class SIT
 
         preg_match("/(?<=iPlanetDirectoryPro=).*?(?=;)/", $data, $match);
         if (count($match) < 1) {
-            die("登录失败。可能用户名或密码错误");
+            echo "登录失败。可能用户名或密码错误";
+            return false;
         }
         $this->Cookies["iPlanetDirectoryPro"] = $match[0];
+        return true;
     }
 
     public function GetIndex()
@@ -118,7 +127,8 @@ class SIT
         preg_match_all("/(?<=center\">)[0-9\.]+/", $data, $match);
 
         if (count($match) <= 0) {
-            die("获取电费失败");
+            echo "获取电费失败";
+            return false;
         }
         $match = $match[0];
  
