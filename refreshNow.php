@@ -44,4 +44,8 @@ $data = json_decode($data);
 unset($op);
 
 $op = new dataOp();
-$op->push(time(),$data->ele_rest);
+if(gettype($data->ele_rest) == "integer" or gettype($data->ele_rest) == "double"){
+    $op->push(time(),$data->ele_rest);
+}else{
+    exit("获取数据失败，无法写入");
+}

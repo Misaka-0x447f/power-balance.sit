@@ -136,12 +136,17 @@ class SIT
         $butie_rest = $match[2];         // 电补余额(元)
         $total_rest = $match[3];        // 合计余额(元)
         $ele_rest = $match[4];          //可用电量(度)
-        return json_encode(array(
-            "rest" => $rest,
-            "butie_rest" => $butie_rest,
-            "total_rest" => $total_rest,
-            "ele_rest" => $ele_rest
-        ));
+        if($ele_rest == Null){
+            echo "数据解析失败";
+            return false;
+        }else{
+            return json_encode(array(
+                "rest" => $rest,
+                "butie_rest" => $butie_rest,
+                "total_rest" => $total_rest,
+                "ele_rest" => $ele_rest
+            ));
+        }
     }
 }
 
