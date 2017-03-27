@@ -2,44 +2,13 @@
     <link href="style.css" rel="stylesheet">
 </head>
 <script src="lib/jquery.js"></script>
-<script>
-    $(document).ready(function(){
-        update();
-    });
-    function update(){
-        $.ajax({
-                type: "POST",
-                contentType: "application/x-www-form-urlencoded",
-                dataType: "html",
-                url: "getFeeInfo.php?noCache=" + Math.random(),
-                success: function (data) {
-                    data = eval(data);
-                    $("#kwh").html(data["kwh"]);
-                    $("#day").html(data["est"]);
-                },
-                timeout: 30000,
-                error: function (XMLHttpRequest, textStatus, errorThrown) {
-                    alert(errorThrown);
-                }
-            }
-        )
-    }
-</script>
-
+<script src="canvas.js"></script>
+<script src="main.js"></script>
 <body>
     <div id="container">
         <!--container负责填满屏幕-->
-        
-        <div id="main">
-            <!--这里才是main-->
-            <img id="bg" src="res/bg.png">
-            <img id="bar" src="res/bar.png">
-            <span id="kwh" class="digital">
-                
-            </span>
-            <span id="day" class="digital">
-
-            </span>
-        </div>
+        <canvas id="canvas">
+            警告：你的浏览器不支持JavaScript。
+        </canvas>
     </div>
 </body>

@@ -1,6 +1,6 @@
 @font-face{  
-  font-family: "7barsp";
-  src: local("7barsp"),
+  font-family: "7barSp";
+  src: local("7barSp"),
        url("res/7barsp.ttf");
 }
 body,#container{
@@ -8,16 +8,7 @@ body,#container{
     height:100%;
     width:100%;
     background-color:black;
-
 }
 #container{
     margin:auto;
-}
-#bg,#bar{
-    position:absolute;
-    top:0;
-}
-.digital{
-    font-family: "7barsp","Microsoft JhengHei UI",sans-serif;
-    color: #66ccff;
 }
