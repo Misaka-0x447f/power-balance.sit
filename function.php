@@ -126,9 +126,15 @@ class dataOp{
             }
         }
 
-        //正在计算剩余时间
-        $burnRate = $eleSum / $timeSum;
-        //最新剩余量/燃烧速度的负值
+        //如果无法估算时间，就返回false等待处理
+        if($timeSum == 0 or $eleSum == 0){
+            return false;
+        }
+
+        //正在计算燃烧速度（顺便转换为千瓦时/天）
+        $burnRate = $eleSum / ($timeSum / 86400);
+
+        // 最新剩余量/燃烧速度的负值 = 剩余时间
         return $opTable[count($opTable)][1] / (-$burnRate);
     }
 }
