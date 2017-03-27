@@ -71,7 +71,7 @@ class dataOp{
     }
     public function getEstRem(){
         $opTable = $this->ls();
-        $startTime = time() - 86400 * 3; //截取过去3天的记录作为预估依据
+        $startTime = time() - 86400 * 7; //截取过去7天的记录作为预估依据
 
         /*
          * 数据结构：
@@ -119,15 +119,7 @@ class dataOp{
         for($i=0;$i<count($tableSto);$i++){
             $timeSum += ($tableSto[$i][0][0] - $tableSto[$i][count($tableSto[$i])-1][0]);
             $eleSum  += ($tableSto[$i][0][1] - $tableSto[$i][count($tableSto[$i])-1][1]);
-            /*不需要遍历所有数据对，只需处理头尾
-            //遍历所有数据对
-            for($j=0;$j<count($tableSto[$i]) - 1;$i++){ //注意此处有-1;i为子表级别，j为数据对级别
-                $deltaTime = $tableSto[$i][$j][0] - $tableSto[$i][$j+1][0]; // ΔT = t1 - t2
-                $deltaEle  = $tableSto[$i][$j][1] - $tableSto[$i][$j+1][1]; // ΔEle = Ele1 - Ele2
-                $timeSum  += $deltaTime;
-                $eleSum   += $deltaEle;
-            }
-            */
+            //不需要遍历所有数据对，只需处理头尾
         }
 
         //如果无法估算时间，就返回false等待处理
