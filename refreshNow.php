@@ -18,7 +18,10 @@ for($i=10;$i>0;$i--){
     if($op->Login()){
        break;
     }
-    echo "无法完成登录，正在重试";
+    if($i == 1){
+        exit("无法完成登录。<br/>");
+    }
+    echo "无法完成登录，正在重试<br/>";
     sleep(10);
 }
 
@@ -28,7 +31,10 @@ for($i=10;$i>0;$i--){
     if($data != false){
         break;
     }
-    echo "无法获取数据，正在重试";
+    if($i == 1){
+        exit("无法获取数据。<br/>");
+    }
+    echo "无法获取数据，正在重试<br/>";
     sleep(10);
 }
 
