@@ -73,42 +73,63 @@ class dataOp{
         $opTable = $this->ls();
         $startTime = time() - 86400 * 3; //截取过去3天的记录作为预估依据
 
-        //如果发生了截取，则此变量的值为Array:符合截取条件的最早记录的时间和记录值。
-        //如果没有发生截取，此变量的值为False。
-        $tableFlushedData = false;
+        /*
+         * 数据结构：
+         * tableSto = {
+         *  {
+         *      {timeA1,eleBalA1},
+         *      {timeA2,eleBalA2},
+         *      ......
+         *      {timeAX,eleBalAX}
+         *  },
+         *  {
+         *      {timeB1,eleBalB1},
+         *      {timeB2,eleBalA2}
+         *      ......
+         *  }
+         * }
+         */
 
-        //查找符合筛选条件的最早记录并写入$tableFlushedData
-        for($i = count($opTable)-1;$i>=0;$i--){
-            if($opTable[$i][0] < $startTime){
-                $tableFlushedData = Array(
-                    "time" => $opTable[$i+1][0],
-                    "eleBal" => $opTable[$i+1][1],
-                    "recordNo" => $i+1
-                );
-                break;
+        $tableSto = Array(
+            Array(
+
+            )
+        );
+
+        //获取过去数天的历史记录并根据充值情况截断存储进行分析
+        for($i=0;$i<count($opTable);$i++){
+            //丢弃时间在范围外的记录
+            if($opTable[$i][0] > $startTime){
+                //如果不是第一条记录，就判断一下是不是该截断，否则直接推到第一列记录中
+                if($i != 0){
+                    //该截断的条件：这条记录的余额严格比上一条的余额高，即发生充值情况
+                    if($opTable[$i][1] > $opTable[$i-1][1]){
+                        array_push($tableSto,Array()); //先推一张新子表进主表，2行后再推新数据
+                    }
+                }
+                array_push($tableSto[count($tableSto)-1],Array($opTable[$i][0],$opTable[$i][1])); //推一组数据进最新的子表
             }
         }
 
-        //检测是否发生了充值，如果最近3天充值了，自动截断记录
-        $balanceRechargeExplode = false;
+        //消耗速度预估：对消耗量和时间分别进行累积，再相除得到预计剩余时间。请注意此处时间是负值，消耗速度也是负值。
+        $eleSum = 0;    //单位：kWh
+        $timeSum = 0;   //单位：kWh/sec --> kWh/days
 
-
-        //无充值情况下的消耗预估
-        //消耗速度预估：消耗量/时间 == 消耗速度（度/天）
-        //剩余时间预估：剩余量/速度 == 剩余时间（天）
-        if($tableFlushedData == false){
-            $burnCount = $opTable[0][1] - $opTable[count($opTable)-1][1];
-            $burnTime = ($opTable[0][0] - $opTable[count($opTable)-1][0]) / 86400;
-            $burnRate = $burnCount / $burnTime;
-            $remCount = $opTable[count($opTable)] / $burnRate;
-            return $remCount;
-        }else{
-            $burnCount = $tableFlushedData["eleBal"] - $opTable[count($opTable)-1][1];
-            $burnTime = ($tableFlushedData["time"] - $opTable[count($opTable)-1][0]) / 86400;
-            $burnRate = $burnCount / $burnTime;
-            $remCount = $opTable[count($opTable)] / $burnRate;
-            return $remCount;
+        //遍历所有子表
+        for($i=0;$i<count($tableSto);$i++){
+            //遍历所有数据对
+            for($j=0;$j<count($tableSto[$i]) - 1;$i++){ //注意此处有-1;i为子表级别，j为数据对级别
+                $deltaTime = $tableSto[$i][$j][0] - $tableSto[$i][$j+1][0]; // ΔT = t1 - t2
+                $deltaEle  = $tableSto[$i][$j][1] - $tableSto[$i][$j+1][1]; // ΔEle = Ele1 - Ele2
+                $timeSum  += $deltaTime;
+                $eleSum   += $deltaEle;
+            }
         }
+
+        //正在计算剩余时间
+        $burnRate = $eleSum / $timeSum;
+        //最新剩余量/燃烧速度的负值
+        return $opTable[count($opTable)][1] / (-$burnRate);
     }
 }
 /* class webOp
