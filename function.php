@@ -23,7 +23,7 @@
  *              如果遇到意外错误，脚本将退出。
  */
 class dataOp{
-    private $lengthLimit = 30;
+    private $lengthLimit = 3000;
     private $filePointer;
     private $fileName = "eleBalance.csv";
     private function openFile($mode){
@@ -64,6 +64,51 @@ class dataOp{
             $tableOfContent[$pos] = explode(",",$tableOfContent[$pos]);
         }
         return $tableOfContent;
+    }
+    public function getBalance(){
+        $opTable = $this->ls();
+        return $opTable[count($opTable)-1][1];
+    }
+    public function getEstRem(){
+        $opTable = $this->ls();
+        $startTime = time() - 86400 * 3; //截取过去3天的记录作为预估依据
+
+        //如果发生了截取，则此变量的值为Array:符合截取条件的最早记录的时间和记录值。
+        //如果没有发生截取，此变量的值为False。
+        $tableFlushedData = false;
+
+        //查找符合筛选条件的最早记录并写入$tableFlushedData
+        for($i = count($opTable)-1;$i>=0;$i--){
+            if($opTable[$i][0] < $startTime){
+                $tableFlushedData = Array(
+                    "time" => $opTable[$i+1][0],
+                    "eleBal" => $opTable[$i+1][1],
+                    "recordNo" => $i+1
+                );
+                break;
+            }
+        }
+
+        //检测是否发生了充值，如果最近3天充值了，自动截断记录
+        $balanceRechargeExplode = false;
+
+
+        //无充值情况下的消耗预估
+        //消耗速度预估：消耗量/时间 == 消耗速度（度/天）
+        //剩余时间预估：剩余量/速度 == 剩余时间（天）
+        if($tableFlushedData == false){
+            $burnCount = $opTable[0][1] - $opTable[count($opTable)-1][1];
+            $burnTime = ($opTable[0][0] - $opTable[count($opTable)-1][0]) / 86400;
+            $burnRate = $burnCount / $burnTime;
+            $remCount = $opTable[count($opTable)] / $burnRate;
+            return $remCount;
+        }else{
+            $burnCount = $tableFlushedData["eleBal"] - $opTable[count($opTable)-1][1];
+            $burnTime = ($tableFlushedData["time"] - $opTable[count($opTable)-1][0]) / 86400;
+            $burnRate = $burnCount / $burnTime;
+            $remCount = $opTable[count($opTable)] / $burnRate;
+            return $remCount;
+        }
     }
 }
 /* class webOp
