@@ -29,12 +29,12 @@ class dataOp{
     private function openFile($mode){
         $this->filePointer = fopen($this->fileName,$mode);
         if(!$this->filePointer){
-            exit("用户错误：Failed to open file '" . $this->fileName . "' in mode '"."'");
+            echo "用户警告：Failed to open file '" . $this->fileName . "' in mode '".$mode."'";
         }
     }
     private function closeFile(){
         if(!fclose($this->filePointer)){
-            exit("用户错误：Failed to close file " . $this->fileName);
+            echo "用户警告：Failed to close file " . $this->fileName;
         }
     }
     public function push($time, $balance){
@@ -117,6 +117,9 @@ class dataOp{
 
         //遍历所有子表
         for($i=0;$i<count($tableSto);$i++){
+            $timeSum += ($tableSto[$i][0][0] - $tableSto[$i][count($tableSto[$i])-1][0]);
+            $eleSum  += ($tableSto[$i][0][1] - $tableSto[$i][count($tableSto[$i])-1][1]);
+            /*不需要遍历所有数据对，只需处理头尾
             //遍历所有数据对
             for($j=0;$j<count($tableSto[$i]) - 1;$i++){ //注意此处有-1;i为子表级别，j为数据对级别
                 $deltaTime = $tableSto[$i][$j][0] - $tableSto[$i][$j+1][0]; // ΔT = t1 - t2
@@ -124,6 +127,7 @@ class dataOp{
                 $timeSum  += $deltaTime;
                 $eleSum   += $deltaEle;
             }
+            */
         }
 
         //如果无法估算时间，就返回false等待处理
@@ -135,7 +139,7 @@ class dataOp{
         $burnRate = $eleSum / ($timeSum / 86400);
 
         // 最新剩余量/燃烧速度的负值 = 剩余时间
-        return $opTable[count($opTable)][1] / (-$burnRate);
+        return $opTable[count($opTable)-1][1] / (-$burnRate);
     }
 }
 /* class webOp
