@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>电费数据</title>
+    <link href="style.css" rel="stylesheet">
+    <style>
+        .datas{
+            font-family: "7barSp",sans-serif;
+            font-size:48px;
+        }
+        #data{
+            color:#66ccff;
+            font-size:24px;
+            font-family: "Microsoft JhengHei UI Light",sans-serif;
+        }
+    </style>
+</head>
+<body>
+<script src="lib/jquery.js"></script>
+<script>
+    $(document).ready(function(){
+        updateData();
+        timer = setInterval(updateData,5000);
+    });
+    function updateData(){
+        console.log("update");
+        $.ajax({
+                type: "POST",
+                contentType: "application/x-www-form-urlencoded",
+                dataType: "html",
+                url: "getFeeInfo.php?noCache=" + Math.random(),
+                success: function (data) {
+                    var sto = JSON.parse(data);
+                    if(sto["bal"] < 10){
+                        $("#kwh").html("0"+sto["bal"]);
+                    }else{
+                        $("#kwh").html(sto["bal"]);
+                    }
+                    if(isNaN(Math.floor(sto["est"]))){
+                        $("#day").html(sto["est"]);
+                    }else{
+                        if(sto["est"] < 10){
+                            $("#day").html("0"+(Math.floor(sto["est"]*100)/100));
+                        }else{
+                            $("#day").html(Math.floor(sto["est"]*100)/100);
+                        }
+                    }
+                },
+                timeout: 30000
+                //没有网络就什么都不做
+                    /*                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                     alert(errorThrown);
+                     }*/
+            }
+        );
+    }
+</script>
+<div id="container">
+        <span id="data">
+            电力
+            <span id="kwh" class="datas">
+
+            </span>
+            kWh <br/>剩下
+            <span id="day" class="datas">
+
+            </span>
+            天
+        </span>
+</div>
+</body>
+</html>
