@@ -13,21 +13,23 @@ require("lib/getFeeInfo.php");
 //拉取电费余额的json
 $op = new SIT("1610400440", "ptunlock233333");
 
-//3 times trial to login
-for($i=3;$i>0;$i--){
+//10 times trial to login
+for($i=10;$i>0;$i--){
     if($op->Login()){
        break;
     }
-    exit("无法完成登录");
+    echo "无法完成登录，正在重试";
+    sleep(10);
 }
 
-//3 times trial to get data
-for($i=3;$i>0;$i--){
+//10 times trial to get data
+for($i=10;$i>0;$i--){
     $data = $op->GetEle(105409);
     if($data != false){
         break;
     }
-    exit("无法获取数据");
+    echo "无法获取数据，正在重试";
+    sleep(10);
 }
 
 //decode data
