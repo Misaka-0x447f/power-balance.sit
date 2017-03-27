@@ -6,7 +6,11 @@
 require("function.php");
 
 $op = new dataOp();
-echo $op->getBalance() . "," . $op->getEstRem();
+if($op->getEstRem() == false){
+    echo $op->getBalance() . ",false";
+}else{
+    echo $op->getBalance() . "," . $op->getEstRem();
+}
 unset($op);
 
 //How did it done?
