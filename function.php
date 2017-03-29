@@ -20,9 +20,36 @@
  *              列出完整的数据。
  *          Return
  *              如果执行成功，返回得到的数据。
- *              如果遇到意外错误，脚本将退出。
+ *              如果遇到意外错误，脚本将继续试图返回数据并抛出异常。
+ *      getBalance
+ *          Description
+ *              获取最新电量余额。
+ *          Return
+ *              如果执行成功，返回电量余额。
+ *              如果数据量不足，返回false。
+ *      getPrevBalance
+ *          Description
+ *              获取上一个与当前余额不同的余额。
+ *          Return
+ *              如果执行成功，返回电量余额。
+ *              如果数据量不足，返回false。
+ *      getBurnRate
+ *          Description
+ *              获取电量瞬时燃烧速度。
+ *          Return
+ *              如果执行成功，返回电量瞬时燃烧速度。"瞬时"由变量$updateInterval定义。
+ *              如果数据量不足，返回false。
+ *      getAvgBurnRate
+ *          Description
+ *              获取电量7天平均燃烧速度。
+ *          Return
+ *              如果执行成功，返回7天平均燃烧速度。
+ *              如果不足7天，返回最大平均值。
+ *              如果数据量不足以估算，返回false。
+ *
  */
 class dataOp{
+    private $updateInterval = 86400;
     private $lengthLimit = 3000;
     private $filePointer;
     private $fileName = "eleBalance.csv";
@@ -67,9 +94,31 @@ class dataOp{
     }
     public function getBalance(){
         $opTable = $this->ls();
-        return $opTable[count($opTable)-1][1];
+        if(count($opTable)>=1){
+            return $opTable[count($opTable)-1][1];
+        }else{
+            return false;
+        }
     }
-    public function getEstRem(){
+    public function getPrevBalance(){
+        $opTable = $this->ls();
+        for($i=count($opTable);$i>1;$i--){
+            if($opTable[$i][1]!=$opTable[$i-1][1]){
+                return $opTable[$i-1][1];
+            }
+        }
+        return false;
+    }
+    public function getBurnRate(){
+        $opTable = $this->ls();
+        for($i=count($opTable);$i>1;$i--){
+            if($opTable[$i][1]<$opTable[$i-1][1]){
+                return ($opTable[$i-1][1] - $opTable[$i][1]) / ($this->updateInterval / 86400);
+            }
+        }
+        return false;
+    }
+    public function getAvgBurnRate(){
         $opTable = $this->ls();
         $startTime = time() - 86400 * 7; //截取过去7天的记录作为预估依据
 
@@ -128,10 +177,12 @@ class dataOp{
         }
 
         //正在计算燃烧速度（顺便转换为千瓦时/天）
-        $burnRate = $eleSum / ($timeSum / 86400);
-
+        return $eleSum / ($timeSum / 86400);
+    }
+    public function getEstRem(){
+        $opTable = $this->ls();
         // 最新剩余量/燃烧速度的负值 = 剩余时间
-        return $opTable[count($opTable)-1][1] / (-$burnRate);
+        return $opTable[count($opTable)-1][1] / (-$this->getAvgBurnRate());
     }
 }
 /* class webOp
