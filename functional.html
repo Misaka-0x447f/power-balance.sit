@@ -5,14 +5,27 @@
     <title>电费数据</title>
     <link href="style.css" rel="stylesheet">
     <style>
-        .datas{
+        .dataUnit,.dataShow{
             font-family: "7barSp",sans-serif;
             font-size:48px;
+            color:#333333;
+            float:right;
         }
-        #data{
+        .dataShow{
             color:#66ccff;
-            font-size:24px;
-            font-family: "Microsoft JhengHei UI Light",sans-serif;
+            position:absolute;
+            right:0;
+            top:0;
+        }
+        .dataUnit{
+            position:relative;
+            right:0;
+            top:0;
+        }
+        #table{
+            color:#66ccff;
+            font-size:16px;
+            font-family: "Courier New","Microsoft JhengHei UI Light",sans-serif;
         }
     </style>
 </head>
@@ -21,7 +34,7 @@
 <script>
     $(document).ready(function(){
         updateData();
-        timer = setInterval(updateData,5000);
+        timer = setInterval(updateData,60*1000);
     });
     function updateData(){
         console.log("update");
@@ -32,19 +45,11 @@
                 url: "getFeeInfo.php?noCache=" + Math.random(),
                 success: function (data) {
                     var sto = JSON.parse(data);
-                    if(sto["bal"] < 10){
-                        $("#kwh").html("0"+sto["bal"]);
-                    }else{
-                        $("#kwh").html(sto["bal"]);
-                    }
+                    $("#kwh").html(sto["bal"]);
                     if(isNaN(Math.floor(sto["est"]))){
                         $("#day").html(sto["est"]);
                     }else{
-                        if(sto["est"] < 10){
-                            $("#day").html("0"+(Math.floor(sto["est"]*100)/100));
-                        }else{
-                            $("#day").html(Math.floor(sto["est"]*100)/100);
-                        }
+                        $("#day").html(Math.floor(sto["est"]*100)/100);
                     }
                 },
                 timeout: 30000
@@ -57,17 +62,40 @@
     }
 </script>
 <div id="container">
-        <span id="data">
-            电力
-            <span id="kwh" class="datas">
+    <table id="table">
+        <tr>
+            <td>
+                eleBal
+            </td>
+            <td>
+                <div class="dataUnit">
+                    000.00
+                    <span id="kwh" class="dataShow">
 
-            </span>
-            kWh <br/>剩下
-            <span id="day" class="datas">
+                    </span>
+                </div>
+            </td>
+            <td>
+                kWh
+            </td>
+        </tr>
+        <tr>
+            <td>
+                ETR
+            </td>
+            <td>
+                <div class="dataUnit">
+                    000.00
+                    <span id="day" class="dataShow">
 
-            </span>
-            天
-        </span>
+                    </span>
+                </div>
+            </td>
+            <td>
+                Days
+            </td>
+        </tr>
+    </table>
 </div>
 </body>
 </html>
