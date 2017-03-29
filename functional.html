@@ -5,13 +5,21 @@
     <title>电费数据</title>
     <link href="style.css" rel="stylesheet">
     <style>
+        .headline td:not(.small){
+            position:relative;
+            top:2px;
+        }
+        .main td:not(.hugeNum){
+            position:relative;
+            top:9px;
+        }
         #objects{
             margin:8px 0 0 8px;
         }
         .dataUnit,.dataShow{
             font-family: "7barSp",sans-serif;
             font-size:48px;
-            color:#333333;
+            color:#222;
         }
         .small .dataUnit,.small .dataUnit .dataShow{
             font-size:24px;
@@ -34,6 +42,9 @@
             color:#66ccff;
             font-size:16px;
             font-family: "Courier New","Microsoft JhengHei UI Light",sans-serif;
+        }
+        #bal{
+            -webkit-animation: twinkling 3s infinite ease-in-out;
         }
     </style>
 </head>
@@ -60,6 +71,9 @@
                         }
                         $("#".concat(setList[i])).html(Number(sto[setList[i]]).toFixed(2));
                     }
+                    if(sto["est"]<5){
+                        $("#est").css("color","#ffbb3c");
+                    }
                 },
                 timeout: 30000
                 //没有网络就什么都不做
@@ -73,7 +87,7 @@
 <div id="container">
     <div id="objects">
         <table>
-            <tr>
+            <tr class="headline">
                 <td>
                     prev
                 </td>
@@ -85,7 +99,7 @@
                     </div>
                 </td>
                 <td>
-                    &nbsp;rate
+                    rate
                 </td>
                 <td class="small">
                     <div class="dataUnit">
@@ -97,11 +111,11 @@
             </tr>
         </table>
         <table>
-            <tr>
+            <tr class="main">
                 <td>
                     eleBal
                 </td>
-                <td>
+                <td class="hugeNum">
                     <div class="dataUnit">
                     <span id="bal" class="dataShow">
 
@@ -112,11 +126,11 @@
                     kWh
                 </td>
             </tr>
-            <tr>
+            <tr class="main">
                 <td>
                     ETR
                 </td>
-                <td>
+                <td class="hugeNum">
                     <div class="dataUnit">
                     <span id="est" class="dataShow">
 

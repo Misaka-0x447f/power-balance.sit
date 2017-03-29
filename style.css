@@ -12,3 +12,15 @@ body,#container{
 #container{
     margin:auto;
 }
+/* 呼吸灯 */
+@-webkit-keyframes twinkling{
+    0%{
+        color: #99ddee;
+    }
+    50%{
+        color: #66ccff;
+    }
+    100%{
+        color: #99ddee;
+    }
+}
