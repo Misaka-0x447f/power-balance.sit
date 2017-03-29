@@ -102,7 +102,7 @@ class dataOp{
     }
     public function getPrevBalance(){
         $opTable = $this->ls();
-        for($i=count($opTable);$i>1;$i--){
+        for($i=count($opTable)-1;$i>1;$i--){
             if($opTable[$i][1]!=$opTable[$i-1][1]){
                 return $opTable[$i-1][1];
             }
@@ -111,7 +111,7 @@ class dataOp{
     }
     public function getBurnRate(){
         $opTable = $this->ls();
-        for($i=count($opTable);$i>1;$i--){
+        for($i=count($opTable)-1;$i>1;$i--){
             if($opTable[$i][1]<$opTable[$i-1][1]){
                 return ($opTable[$i-1][1] - $opTable[$i][1]) / ($this->updateInterval / 86400);
             }

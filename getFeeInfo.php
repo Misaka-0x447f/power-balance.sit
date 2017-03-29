@@ -10,18 +10,12 @@ $data = Array(
     "bal" => $op->getBalance(),
     "prevBal" => $op->getPrevBalance(),
     "burnRate" => $op->getBurnRate(),
-    "est" => $op->getEstRem(),
-    "prg" => 0
+    "est" => $op->getEstRem()
 );
 foreach ($data as $key => $i){
     if($i == false){
         $data[$key] = "---.--";
     }
-}
-if($data["est"] == false){
-    $data["prg"] = $data["bal"] / 100; //满值为100度
-}else{
-    $data["prg"] = $data["est"] / 30; //满值为30天
 }
 if($data["prg"] > 1){
     $data["prg"] = 1;
