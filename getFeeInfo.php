@@ -8,11 +8,17 @@ require("function.php");
 $op = new dataOp();
 $data = Array(
     "bal" => $op->getBalance(),
+    "prevBal" => $op->getPrevBalance(),
+    "burnRate" => $op->getBurnRate(),
     "est" => $op->getEstRem(),
     "prg" => 0
 );
+foreach ($data as $key => $i){
+    if($i == false){
+        $data[$key] = "---.--";
+    }
+}
 if($data["est"] == false){
-    $data["est"] = "---";
     $data["prg"] = $data["bal"] / 100; //满值为100度
 }else{
     $data["prg"] = $data["est"] / 30; //满值为30天
