@@ -1,7 +1,7 @@
 @font-face{  
   font-family: "7barSp";
   src: local("7barSp"),
-       url("res/7barsp.ttf");
+       url("../res/7barsp.ttf");
 }
 body,#container{
     margin:0;

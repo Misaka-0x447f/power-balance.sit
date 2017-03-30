@@ -1,0 +1,41 @@
+.headline td:not(.small){
+    position:relative;
+    top:2px;
+}
+.main td:not(.hugeNum){
+    position:relative;
+    top:9px;
+}
+#objects{
+    margin:8px 0 0 8px;
+}
+.dataUnit,.dataShow{
+    font-family: "7barSp",sans-serif;
+    font-size:48px;
+    color:#222;
+}
+.small .dataUnit,.small .dataUnit .dataShow{
+    font-size:24px;
+}
+.dataUnit:before{
+    content:"888.88";
+}
+.dataShow{
+    color:#66ccff;
+    position:absolute;
+    right:0;
+    top:0;
+}
+.dataUnit{
+    position:relative;
+    right:0;
+    top:0;
+}
+#container{
+    color:#66ccff;
+    font-size:16px;
+    font-family: "Courier New","Microsoft JhengHei UI Light",sans-serif;
+}
+#bal{
+    -webkit-animation: twinkling 3s infinite ease-in-out;
+}
