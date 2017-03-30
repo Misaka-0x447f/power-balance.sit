@@ -185,7 +185,7 @@ class dataOp{
         return $eleSum / ($timeSum / 86400);
     }
     public function getEstBalance(){
-        // 最新余额-燃烧速度的负值*(当前时间-周期开始时间)/86400 = 估计余额
+        // 最新余额-燃烧速度的负值*(当前时间-最后更新时间)/86400 = 估计余额
         return $this->getBalance()+$this->getAvgBurnRate()*(time()-$this->balanceLastModifiedAt())/$this->updateInterval;
     }
     public function getEstRem(){

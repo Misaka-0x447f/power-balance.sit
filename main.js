@@ -23,12 +23,12 @@ function reCalc(){
             url: "getFeeInfo.php?noCache=" + Math.random(),
             success: function (data) {
                 var sto = JSON.parse(data);
-                var setList = ["bal","prevBal","burnRate","est"];
+                var setList = ["bal","estBal","burnRate","est"];
                 for(var i=0;i<setList.length;i++){
                     if(isNaN(sto[i])){
                         sto[i] = "---.--";
                     }
-                    $("#".concat(setList[i])).html(Number(sto[setList[i]]).toFixed(2));
+                    $("#".concat(setList[i])).html(Number(sto[setList[i]]).toFixed(3));
                 }
                 if(sto["est"]<5){
                     $("#est").css("color","#ffbb3c");

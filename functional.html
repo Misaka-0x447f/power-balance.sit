@@ -11,8 +11,8 @@
         $(document).ready(function(){
             requestData();
             reCalc();
-            setInterval(reCalc,60*1000);
-            setInterval(requestData,30*60*1000);
+            setInterval(reCalc,7*1000);
+            setInterval(requestData,15*60*1000);
         });
     </script>
 </head>
@@ -22,11 +22,11 @@
         <table>
             <tr class="headline">
                 <td>
-                    prev
+                    bal
                 </td>
                 <td class="small">
                     <div class="dataUnit">
-                    <span id="prevBal" class="dataShow">
+                    <span id="bal" class="dataShow">
 
                     </span>
                     </div>
@@ -46,11 +46,11 @@
         <table>
             <tr class="main">
                 <td>
-                    eleBal
+                    estBal
                 </td>
                 <td class="hugeNum">
                     <div class="dataUnit">
-                    <span id="bal" class="dataShow">
+                    <span id="estBal" class="dataShow">
 
                     </span>
                     </div>

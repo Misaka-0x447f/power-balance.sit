@@ -8,9 +8,11 @@ require("function.php");
 $op = new dataOp();
 $data = Array(
     "bal" => $op->getBalance(),
-    "prevBal" => $op->getPrevBalance(),
+    "estBal" => $op->getEstBalance(),
     "burnRate" => $op->getBurnRate(),
-    "est" => $op->getEstRem()
+    "est" => $op->getEstRem(),
+    "prevBal" => $op->getPrevBalance(),
+    "avgBurnRate" => $op->getAvgBurnRate()
 );
 foreach ($data as $key => $i){
     if($i == false){

@@ -18,7 +18,7 @@
     font-size:24px;
 }
 .dataUnit:before{
-    content:"888.88";
+    content:"888.888";
 }
 .dataShow{
     color:#66ccff;
@@ -36,6 +36,6 @@
     font-size:16px;
     font-family: "Courier New","Microsoft JhengHei UI Light",sans-serif;
 }
-#bal{
+#estBal{
     -webkit-animation: twinkling 3s infinite ease-in-out;
 }
