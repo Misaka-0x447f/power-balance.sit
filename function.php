@@ -4,6 +4,9 @@
  *      向预先定义的文件写入数据或读取数据。
  *      每行包括两个数据：记录时间和电费余额。
  *      数据的最大行数已在$lengthLimit中定义。
+ *      除特殊说明外
+ *          成员函数执行正常均返回功能描述中的值。
+ *          成员函数如果遇到意外情况均返回false。
  *  Interface
  *      push
  *          Description
@@ -13,44 +16,37 @@
  *              $time 获得该电费余额数据的时间。应当为标准unix格式。
  *              $balance 电费余额。
  *          Return
- *              如果执行成功，返回true。
  *              如果遇到意外错误，脚本将退出。
  *      ls
  *          Description
  *              列出完整的数据。
  *          Return
- *              如果执行成功，返回得到的数据。
  *              如果遇到意外错误，脚本将继续试图返回数据并抛出异常。
  *      getBalance
  *          Description
  *              获取最新电量余额。
- *          Return
- *              如果执行成功，返回电量余额。
- *              如果数据量不足，返回false。
+ *      getEstBalance
+ *          Description
+ *              获取估计电量余额。
+ *      getEstRem
+ *          Description
+ *              获取估计剩余时间。
  *      getPrevBalance
  *          Description
  *              获取上一个与当前余额不同的余额。
- *          Return
- *              如果执行成功，返回电量余额。
- *              如果数据量不足，返回false。
  *      getBurnRate
  *          Description
- *              获取电量瞬时燃烧速度。
- *          Return
- *              如果执行成功，返回电量瞬时燃烧速度。"瞬时"由变量$updateInterval定义。
- *              如果数据量不足，返回false。
+ *              获取电量瞬时燃烧速度。"瞬时"由变量$updateInterval定义。
  *      getAvgBurnRate
  *          Description
  *              获取电量7天平均燃烧速度。
  *          Return
- *              如果执行成功，返回7天平均燃烧速度。
  *              如果不足7天，返回最大平均值。
- *              如果数据量不足以估算，返回false。
  *
  */
 class dataOp{
     private $updateInterval = 86400;
-    private $lengthLimit = 3000;
+    private $lengthLimit = 10000;
     private $filePointer;
     private $fileName = "eleBalance.csv";
     private function openFile($mode){
@@ -63,6 +59,15 @@ class dataOp{
         if(!fclose($this->filePointer)){
             echo "用户警告：Failed to close file " . $this->fileName;
         }
+    }
+    private function balanceLastModifiedAt(){
+        $opTable = $this->ls();
+        for($i=count($opTable)-1;$i>0;$i--){
+            if($opTable[$i][1] != $opTable[$i-1][1]){
+                return $opTable[$i][0];
+            }
+        }
+        return false;
     }
     public function push($time, $balance){
         $content = file($this->fileName,FILE_SKIP_EMPTY_LINES | FILE_IGNORE_NEW_LINES); //逐行读取目标文件。将跳过空行，并且不会将换行符读入。
@@ -179,10 +184,13 @@ class dataOp{
         //正在计算燃烧速度（顺便转换为千瓦时/天）
         return $eleSum / ($timeSum / 86400);
     }
+    public function getEstBalance(){
+        // 最新余额-燃烧速度的负值*(当前时间-周期开始时间)/86400 = 估计余额
+        return $this->getBalance()+$this->getAvgBurnRate()*(time()-$this->balanceLastModifiedAt())/$this->updateInterval;
+    }
     public function getEstRem(){
-        $opTable = $this->ls();
-        // 最新剩余量/燃烧速度的负值 = 剩余时间
-        return $opTable[count($opTable)-1][1] / (-$this->getAvgBurnRate());
+        // 估计余额/燃烧速度的负值 = 估计剩余时间
+        return $this->getEstBalance() / (-$this->getAvgBurnRate());
     }
 }
 /* class webOp
