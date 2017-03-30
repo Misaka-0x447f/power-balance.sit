@@ -1,24 +1,46 @@
 /**
  * Created by Aozak on 2017/3/27.
  */
-sto = {};
-imgSto = {};
-function updateData(){
+function requestData(){
+    console.log("requesting");
+    $.ajax({
+        type: "POST",
+        contentType: "application/x-www-form-urlencoded",
+        dataType: "html",
+        url: "refreshNow.php?noCache=" + Math.random(),
+        success: function(){
+            console.log("successfully connected to update module");
+        },
+        timeout:30000
+})
+}
+function reCalc(){
+    console.log("reCalculating");
     $.ajax({
             type: "POST",
             contentType: "application/x-www-form-urlencoded",
             dataType: "html",
             url: "getFeeInfo.php?noCache=" + Math.random(),
             success: function (data) {
-                window.sto = JSON.parse(data);
+                var sto = JSON.parse(data);
+                var setList = ["bal","prevBal","burnRate","est"];
+                for(var i=0;i<setList.length;i++){
+                    if(isNaN(sto[i])){
+                        sto[i] = "---.--";
+                    }
+                    $("#".concat(setList[i])).html(Number(sto[setList[i]]).toFixed(2));
+                }
+                if(sto["est"]<5){
+                    $("#est").css("color","#ffbb3c");
+                }
             },
-            timeout: 30000,
-            error: function (XMLHttpRequest, textStatus, errorThrown) {
-                alert(errorThrown);
-            }
+            timeout: 30000
         }
-    )
+    );
 }
+/*
+ sto = {};
+ imgSto = {};
 function preLoadImg(){
     window.imgSto[0] = new Image();
     window.imgSto[1] = new Image();
@@ -39,10 +61,4 @@ function draw(){
 
     }
 }
-$(document).ready(function(){
-    updateData();
-    preLoadImg();
-    $("#container").imagesLoaded(function(){
-        draw();
-    });
-});
+    */

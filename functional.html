@@ -50,39 +50,14 @@
 </head>
 <body>
 <script src="lib/jquery.js"></script>
+<script src="main.js"></script>
 <script>
     $(document).ready(function(){
-        updateData();
-        timer = setInterval(updateData,60*1000);
+        requestData();
+        reCalc();
+        timer = setInterval(reCalc,60*1000);
+        timer2 = setInterval(requestData,30*60*1000);
     });
-    function updateData(){
-        console.log("update");
-        $.ajax({
-                type: "POST",
-                contentType: "application/x-www-form-urlencoded",
-                dataType: "html",
-                url: "getFeeInfo.php?noCache=" + Math.random(),
-                success: function (data) {
-                    var sto = JSON.parse(data);
-                    var setList = ["bal","prevBal","burnRate","est"];
-                    for(var i=0;i<setList.length;i++){
-                        if(isNaN(sto[i])){
-                            sto[i] = "---.--";
-                        }
-                        $("#".concat(setList[i])).html(Number(sto[setList[i]]).toFixed(2));
-                    }
-                    if(sto["est"]<5){
-                        $("#est").css("color","#ffbb3c");
-                    }
-                },
-                timeout: 30000
-                //没有网络就什么都不做
-                    /*                    error: function (XMLHttpRequest, textStatus, errorThrown) {
-                     alert(errorThrown);
-                     }*/
-            }
-        );
-    }
 </script>
 <div id="container">
     <div id="objects">
