@@ -33,7 +33,7 @@ function reCalc(){
                 if(sto["est"]<5){
                     $("#est").css("color","#ffbb3c");
                 }else{
-                    $("#est").css("color","inherit");
+                    $("#est").css("color","#66ccff");
                 }
             },
             timeout: 30000
