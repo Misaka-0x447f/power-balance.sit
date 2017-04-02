@@ -166,7 +166,11 @@ class dataOp{
     }
     public function getEstRem(){
         // 估计余额/燃烧速度的负值 = 估计剩余时间
-        return $this->getEstBalance() / (-$this->getAvgBurnRate());
+        if(!$this->getAvgBurnRate() == 0){
+            return $this->getEstBalance() / (-$this->getAvgBurnRate());
+        }else{
+            return false;
+        }
     }
 }
 /* class webOp
