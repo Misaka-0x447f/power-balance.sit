@@ -28,10 +28,12 @@ function reCalc(){
                     if(isNaN(sto[i])){
                         sto[i] = "---.--";
                     }
-                    $("#".concat(setList[i])).html(Number(sto[setList[i]]).toFixed(3));
+                    $("#".concat(setList[i])).html(Number(sto[setList[i]]).toFixed(2));
                 }
                 if(sto["est"]<5){
                     $("#est").css("color","#ffbb3c");
+                }else{
+                    $("#est").css("color","inherit");
                 }
             },
             timeout: 30000
