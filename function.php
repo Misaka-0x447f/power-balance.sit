@@ -127,53 +127,29 @@ class dataOp{
         $opTable = $this->ls();
         $startTime = time() - 86400 * 7; //截取过去7天的记录作为预估依据
 
-        /*
-         * 数据结构：
-         * tableSto = {
-         *  {
-         *      {timeA1,eleBalA1},
-         *      {timeA2,eleBalA2},
-         *      ......
-         *      {timeAX,eleBalAX}
-         *  },
-         *  {
-         *      {timeB1,eleBalB1},
-         *      {timeB2,eleBalA2}
-         *      ......
-         *  }
-         * }
-         */
-
-        $tableSto = Array(
-            Array(
-
-            )
-        );
-
-        //获取过去数天的历史记录并根据充值情况截断存储进行分析
-        for($i=0;$i<count($opTable);$i++){
-            //丢弃时间在范围外的记录
-            if($opTable[$i][0] > $startTime){
-                //如果不是第一条记录，就判断一下是不是该截断，否则直接推到第一列记录中
-                if($i != 0){
-                    //该截断的条件：这条记录的余额严格比上一条的余额高，即发生充值情况
-                    if($opTable[$i][1] > $opTable[$i-1][1]){
-                        array_push($tableSto,Array()); //先推一张新子表进主表，2行后再推新数据
-                    }
-                }
-                array_push($tableSto[count($tableSto)-1],Array($opTable[$i][0],$opTable[$i][1])); //推一组数据进最新的子表
-            }
-        }
-
-        //消耗速度预估：对消耗量和时间分别进行累积，再相除得到预计剩余时间。请注意此处时间是负值，消耗速度也是负值。
+        //消耗速度预估：对消耗量和时间差分别进行累积，再相除得到预计剩余时间。请注意此处时间是负值，消耗速度也是负值。
         $eleSum = 0;    //单位：kWh
         $timeSum = 0;   //单位：kWh/sec --> kWh/days
 
-        //遍历所有子表
-        for($i=0;$i<count($tableSto);$i++){
-            $timeSum += ($tableSto[$i][0][0] - $tableSto[$i][count($tableSto[$i])-1][0]);
-            $eleSum  += ($tableSto[$i][0][1] - $tableSto[$i][count($tableSto[$i])-1][1]);
-            //不需要遍历所有数据对，只需处理头尾
+        $dataSto = Array();
+
+        //获取过去数天的历史记录并稍后进行分析
+        for($i=0;$i<count($opTable)-1;$i++){
+            //丢弃时间在范围外的记录
+            if($opTable[$i][0] >= $startTime){
+                //读取所有有价值的点并塞到数据表里
+                if($opTable[$i+1][1] != $opTable[$i][1]){
+                    array_push($dataSto, Array($opTable[$i+1][0], $opTable[$i+1][1]));
+                }
+            }
+        }
+
+        //处理点并进行累加
+        for($i=0;$i<count($dataSto)-1;$i++){
+            if($dataSto[$i+1][1] - $dataSto[$i][1] < 0){
+                $eleSum += $dataSto[$i+1][1] - $dataSto[$i][1];
+                $timeSum += $dataSto[$i+1][0] - $dataSto[$i][0];
+            }
         }
 
         //如果无法估算时间，就返回false等待处理
@@ -181,7 +157,7 @@ class dataOp{
             return false;
         }
 
-        //正在计算燃烧速度（顺便转换为千瓦时/天）
+        //正在计算燃烧速度（顺便转换为千瓦时/天），应该为负值
         return $eleSum / ($timeSum / 86400);
     }
     public function getEstBalance(){
