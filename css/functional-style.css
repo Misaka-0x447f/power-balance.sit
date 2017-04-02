@@ -18,7 +18,7 @@
     font-size:24px;
 }
 .dataUnit:before{
-    content:"888.888";
+    content:"888.88";
 }
 .dataShow{
     color:#66ccff;
