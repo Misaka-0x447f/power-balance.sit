@@ -17,10 +17,16 @@ $dataBase = $op->ls();
     td{
         text-align:right;
     }
+    th{
+        text-align:left;
+    }
     .balance{
         padding-left:60px;
     }
 </style>
+<div id="storage">
+    Storage used: <?php echo round(count($dataBase)/$op->lengthLimit, 1); echo "%"; ?>
+</div>
 <table id="tableOfData">
     <tr>
         <th>
@@ -31,17 +37,17 @@ $dataBase = $op->ls();
         </th>
     </tr>
     <?php
-        for($i=count($dataBase)-1;$i>0;$i--){
-            if($dataBase[$i][1] != $dataBase[$i-1][1]){
-                echo "<tr>";
-                echo "    <td class=\"time\">";
-                echo "        " . date("M. d y H:i's\"", $dataBase[$i][0]);
-                echo "    </td>";
-                echo "    <td class=\"balance\">";
-                echo "        " . $dataBase[$i][1] . " CNY";
-                echo "    </td>";
-                echo "</tr>";
-            }
+    for($i=count($dataBase)-1;$i>0;$i--){
+        if($dataBase[$i][1] != $dataBase[$i-1][1]){
+            echo "<tr>";
+            echo "    <td class=\"time\">";
+            echo "        " . date("M. d y H:i's\"", $dataBase[$i][0]);
+            echo "    </td>";
+            echo "    <td class=\"balance\">";
+            echo "        " . $dataBase[$i][1] . " CNY";
+            echo "    </td>";
+            echo "</tr>";
         }
+    }
     ?>
 </table>
