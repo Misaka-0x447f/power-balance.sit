@@ -46,7 +46,7 @@
  */
 class dataOp{
     private $updateInterval = 86400;
-    private $lengthLimit = 10000;
+    private $lengthLimit = 60000;
     private $filePointer;
     private $fileName = "eleBalance.csv";
     private function openFile($mode){
