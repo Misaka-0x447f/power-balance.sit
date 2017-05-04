@@ -16,7 +16,7 @@ $op = new SIT("1610400440", "ptunlock233333");
 //10 times trial to login
 for($i=10;$i>0;$i--){
     if($op->Login()){
-       break;
+        break;
     }
     if($i == 1){
         exit("无法完成登录。<br/>");
@@ -44,8 +44,9 @@ $data = json_decode($data);
 unset($op);
 
 $op = new dataOp();
-if(gettype($data->ele_rest) == "string"){
-    $op->push(time(),$data->ele_rest);
+$currTime = time();
+if(gettype($data->ele_rest) == "string" and is_numeric($data->ele_rest) and is_numeric($currTime)){
+    $op->push($currTime,$data->ele_rest);
 }else{
     exit("获取数据失败，无法写入");
 }
