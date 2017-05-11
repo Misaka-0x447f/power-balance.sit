@@ -12,6 +12,7 @@
  *          Description
  *              以行(line)为单位接受关于电费的时间和费用数据，然后保存到文件。
  *              如果文件中的记录行数已超过限制，将丢弃最旧的一行，然后保存最新的数据。
+ *              每一次push都会检查buffer使用量，如果快炸了就调用private purge();(就是压缩一下，清除无用数据。嗯。)
  *          Param
  *              $time 获得该电费余额数据的时间。应当为标准unix格式。
  *              $balance 电费余额。
@@ -45,10 +46,11 @@
  *
  */
 class dataOp{
-    private $updateInterval = 86400;
-    public  $lengthLimit = 60000;
+    private $updateInterval     = 86400;
+    public  $lengthLimit        = 100000;
+    public  $autoPurgeThreshold = 0.9;
     private $filePointer;
-    private $fileName = "eleBalance.csv";
+    private $fileName           = "eleBalance.csv";
     private function openFile($mode){
         $this->filePointer = fopen($this->fileName,$mode);
         if(!$this->filePointer){
@@ -92,10 +94,14 @@ class dataOp{
     }
     public function ls(){
         $tableOfContent = file($this->fileName,FILE_SKIP_EMPTY_LINES | FILE_IGNORE_NEW_LINES); //逐行读取。将跳过空行，并且不会将换行符读入。
-        for($pos = 0;$pos < count($tableOfContent);$pos++){
-            $tableOfContent[$pos] = explode(",",$tableOfContent[$pos]);
+        $temp = [];
+        for($pos = 0;$pos < count($tableOfContent);$pos++) {
+            array_push($temp, explode(",", $tableOfContent[$pos]));
+            if(!is_numeric($temp[count($temp)-1][0]) || !is_numeric($temp[count($temp)-1][1])){
+                unset($temp[count($temp)-1]);
+            }
         }
-        return $tableOfContent;
+        return $temp;
     }
     public function getBalance(){
         $opTable = $this->ls();

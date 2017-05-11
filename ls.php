@@ -25,7 +25,7 @@ $dataBase = $op->ls();
     }
 </style>
 <div id="storage">
-    Storage used: <?php echo round(count($dataBase)/$op->lengthLimit, 1); echo "%"; ?>
+    Buffer used: <?php echo round(count($dataBase)/$op->lengthLimit*100, 1); echo "%"; ?>
 </div>
 <table id="tableOfData">
     <tr>
