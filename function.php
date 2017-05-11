@@ -46,11 +46,11 @@
  *
  */
 class dataOp{
-    private $updateInterval     = 86400;
-    public  $lengthLimit        = 100000;
-    public  $autoPurgeThreshold = 0.9;
+    private $updateInterval = 86400;
+    public  $lengthLimit    = 100000;
+    public  $purgeThreshold = 0.9;
     private $filePointer;
-    private $fileName           = "eleBalance.csv";
+    private $fileName       = "eleBalance.csv";
     private function openFile($mode){
         $this->filePointer = fopen($this->fileName,$mode);
         if(!$this->filePointer){
@@ -90,7 +90,50 @@ class dataOp{
             }
         }
         $this->closeFile();
+        if($this->purge()){
+            echo "Purge complete";
+        }else{
+            echo "No need to purge";
+        }
         return true;
+    }
+    private function purge(){
+        $content = file($this->fileName,FILE_SKIP_EMPTY_LINES | FILE_IGNORE_NEW_LINES);
+        $temp = []; //分析用的数组
+        $writeList = [];
+        if(count($content) > $this->lengthLimit * $this->purgeThreshold){
+            //判断是不是数字，如果不是就扔了
+            for($pos = 0;$pos < count($content);$pos++) {
+                array_push($temp, explode(",", $content[$pos]));
+                if(!is_numeric($temp[count($temp)-1][0]) || !is_numeric($temp[count($temp)-1][1])){
+                    unset($temp[count($temp)-1]);
+                }
+            }
+            unset($content); //$content现在可以扔掉了
+            //此时我们得到了一个parsed的数组temp，接下来开始分析以确定哪些数据有用，有用的话，就把源数据里对应的行导入写入队列。
+            for($i=count($temp)-1;$i>0;$i--){
+                if($temp[$i][1] != $temp[$i-1][1]){
+                    array_push($writeList, $temp[$i]);
+                }
+            }
+            array_push($writeList, $temp[0]); //别忘了把第0行写进去，刚才没写
+            //啥，你说如果数据大小为0？没数据还净化个毛线
+            unset($temp); //temp可以扔了
+            //重新格式化为csv
+            for($i=0;$i<count($writeList);$i++){
+                $writeList[$i] = $writeList[$i][0] . "," . $writeList[$i][1];
+            }
+            //接下来就可以写入啦，记得要反着写，因为之前翻转过一次
+            $this->openFile("w");
+            for($pos=count($writeList)-1;$pos>=0;$pos--){
+                if(!fprintf($this->filePointer, "%s\n", $writeList[$pos])){
+                    echo "用户警告：Failed to write file " . $this->fileName;
+                }
+            }
+            $this->closeFile();
+            return true;
+        }
+        return false;
     }
     public function ls(){
         $tableOfContent = file($this->fileName,FILE_SKIP_EMPTY_LINES | FILE_IGNORE_NEW_LINES); //逐行读取。将跳过空行，并且不会将换行符读入。
