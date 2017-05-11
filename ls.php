@@ -37,7 +37,7 @@ $dataBase = $op->ls();
         </th>
     </tr>
     <?php
-    for($i=count($dataBase)-1;$i>0;$i--){
+    for($i=count($dataBase)-1;$i>=0;$i--){
         if($dataBase[$i][1] != $dataBase[$i-1][1]){
             echo "<tr>";
             echo "    <td class=\"time\">";
