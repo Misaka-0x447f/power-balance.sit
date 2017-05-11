@@ -25,7 +25,8 @@ $dataBase = $op->ls();
     }
 </style>
 <div id="storage">
-    Buffer used: <?php echo round(count($dataBase)/$op->lengthLimit*100, 1); echo "%"; ?>
+    Buffer used: <?php echo round(count($dataBase)/$op->lengthLimit*100, 1); echo "%"; ?> /
+    Auto purge at: <?php echo $op->purgeThreshold*100; echo "%"; ?>
 </div>
 <table id="tableOfData">
     <tr>
