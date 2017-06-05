@@ -45,7 +45,7 @@ $dataBase = $op->ls();
             echo "        " . date("M. d y H:i's\"", $dataBase[$i][0]);
             echo "    </td>";
             echo "    <td class=\"balance\">";
-            echo "        " . $dataBase[$i][1] . " CNY";
+            echo "        " . $dataBase[$i][1] . " kWh";
             echo "    </td>";
             echo "</tr>";
         }
