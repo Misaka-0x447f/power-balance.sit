@@ -167,7 +167,7 @@ class dataOp{
         $opTable = $this->ls();
         for($i=count($opTable)-1;$i>1;$i--){
             if($opTable[$i][1]!=$opTable[$i-1][1]){
-                return ($opTable[$i][1] - $opTable[$i-1][1]) / ($this->updateInterval / 86400);
+                return ($opTable[$i][1] - $opTable[$i-1][1]) / (($opTable[$i][0] - $opTable[$i-1][0]) / 86400);
             }
         }
         return false;

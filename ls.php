@@ -26,7 +26,8 @@ $dataBase = $op->ls();
 </style>
 <div id="storage">
     Buffer used: <?php echo round(count($dataBase)/$op->lengthLimit*100, 1); echo "%"; ?> /
-    Auto purge at: <?php echo $op->purgeThreshold*100; echo "%"; ?>
+    Auto purge at: <?php echo $op->purgeThreshold*100; echo "%"; ?> /
+    Rate: 0.61 CNY per kWh
 </div>
 <table id="tableOfData">
     <tr>
