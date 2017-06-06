@@ -165,9 +165,20 @@ class dataOp{
     }
     public function getBurnRate(){
         $opTable = $this->ls();
+        $readCounter = 0;
+        $deltaBal = 0;
+        $deltaTime = 0;
         for($i=count($opTable)-1;$i>1;$i--){
             if($opTable[$i][1]!=$opTable[$i-1][1]){
-                return ($opTable[$i][1] - $opTable[$i-1][1]) / (($opTable[$i][0] - $opTable[$i-1][0]) / 86400);
+                $readCounter++;
+                if($readCounter == 1){
+                    $deltaBal = $opTable[$i][1];
+                    $deltaTime = $opTable[$i][0];
+                }elseif($readCounter == 2){
+                    $deltaBal = $deltaBal - $opTable[$i][1];
+                    $deltaTime = $deltaTime - $opTable[$i][0];
+                    return $deltaBal / ($deltaTime / 86400);
+                }
             }
         }
         return false;
