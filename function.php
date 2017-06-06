@@ -139,9 +139,9 @@ class dataOp{
         $tableOfContent = file($this->fileName,FILE_SKIP_EMPTY_LINES | FILE_IGNORE_NEW_LINES); //逐行读取。将跳过空行，并且不会将换行符读入。
         $temp = [];
         for($pos = 0;$pos < count($tableOfContent);$pos++) {
-            array_push($temp, explode(",", $tableOfContent[$pos]));
-            if(!is_numeric($temp[count($temp)-1][0]) || !is_numeric($temp[count($temp)-1][1])){
-                unset($temp[count($temp)-1]);
+            $pushSto = explode(",", $tableOfContent[$pos]);
+            if(is_numeric($pushSto[0]) && is_numeric($pushSto[1])){
+                array_push($temp, $pushSto);
             }
         }
         return $temp;
