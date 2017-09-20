@@ -1,3 +1,9 @@
+<meta charset="utf-8">
+<style>
+    html{
+        font-family: Consolas, sans-serif;
+    }
+</style>
 <?php
 /**
  * Created by IntelliJ IDEA.
@@ -13,29 +19,12 @@ require("lib/getFeeInfo.php");
 //拉取电费余额的json
 $op = new SIT("1610400440", "ptunlock233333");
 
-//10 times trial to login
-for($i=10;$i>0;$i--){
-    if($op->Login()){
-        break;
-    }
-    if($i == 1){
-        exit("无法完成登录。<br/>");
-    }
-    echo "无法完成登录，正在重试<br/>";
-    sleep(10);
+if(!$op->Login()){
+    console::intStop("Login failure");
 }
 
-//10 times trial to get data
-for($i=10;$i>0;$i--){
-    $data = $op->GetEle(105409);
-    if($data != false){
-        break;
-    }
-    if($i == 1){
-        exit("无法获取数据。<br/>");
-    }
-    echo "无法获取数据，正在重试<br/>";
-    sleep(10);
+if(!$data = $op->GetEle(105409)){
+    console::intStop("Data load failure");
 }
 
 //decode data
@@ -48,5 +37,5 @@ $currTime = time();
 if(gettype($data->ele_rest) == "string" and is_numeric($data->ele_rest) and is_numeric($currTime)){
     $op->push($currTime,$data->ele_rest);
 }else{
-    exit("获取数据失败，无法写入");
+    console::intStop("Write failure: data type dismatching");
 }

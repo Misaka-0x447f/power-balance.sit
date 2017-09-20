@@ -45,9 +45,282 @@
  *              如果不足7天，返回最大平均值。
  *
  */
+
+class console{
+    static $scriptStartTime;
+    static function getRunTimerF(){
+        //return a string that formatted as unix format
+        return number_format(microtime(true) - console::$scriptStartTime,6);
+    }
+    static function getAttemptTimesF($attemptCount, $maxAttempt){
+        return substr("000000000" . ($attemptCount+1), -strlen((string)(int)$maxAttempt)) . "/" . $maxAttempt;
+    }
+    static public function getNormalRunLog($attemptCount, $maxAttempt, $realProgress){
+        return console::getAttemptTimesF($attemptCount,$maxAttempt) . " " . $realProgress;
+    }
+    static public function intErr($string){
+        if(error_reporting() != 0){
+            console::intInfo("Warning: " . $string);
+        }//else{
+        //enable when debugging
+        //console::intInfo("Silenced Warning: " . $string);
+        //console::toLogFileWithTimeStamp("Silenced Warning: " . $string);
+        //}
+        return true;
+    }
+
+    static public function intInfo($string){
+        $string = str_replace(" ", "&nbsp;", $string);
+        echo "<br/>" . console::getRunTimerF() . "&nbsp;" . $string;
+        if(error_reporting() != 0) {
+            console::toLogFileWithTimeStamp($string);
+        }
+        return true;
+    }
+
+    static public function intStop($string, $count = "***"){
+        console::intInfo("" . $count . "/*** " . $string);
+        if(error_reporting() != 0) {
+            console::toLogFileWithTimeStamp("" . $count . "/*** " . $string);
+        }
+        exit;
+    }
+
+    static function echoNetStatus($ch){
+        $sto = curl_getinfo($ch);
+        console::intInfo("    Target URL          " . $sto["url"]);
+        console::intInfo("    Status code         " . $sto["http_code"]);
+        console::intInfo("    Network traffic     " . "↓ " . $sto["size_download"] / 1024 . " KiB "
+            . "↑ " . $sto["size_upload"] / 1024 . " KiB ");
+        console::intInfo("    Timing              ");
+        console::intInfo("        Total time      " . $sto["total_time"]);
+        console::intInfo("        Name lookup     " . $sto["namelookup_time"]);
+        console::intInfo("        Redirect        " . $sto["redirect_time"]);
+        console::intInfo("        Connecting      " . $sto["connect_time"]);
+        console::intInfo("        Start transfer  " . $sto["starttransfer_time"]);
+        console::intInfo("    Content type        " . $sto["content_type"]);
+    }
+
+    static function toLogFileWithTimeStamp($string){
+        $logFileOpt = @new fileOpt();
+        @$logFileOpt->fileSelect("temp/latest.log");
+        if(!@$logFileOpt->fileExist() or @$logFileOpt->fileEmpty()){
+            if(!@$logFileOpt->fileExist()){
+                @$logFileOpt->fileCreate();
+            }
+            for($i = 0 ; $i < 30 ; $i++){
+                @$logFileOpt->jsonFileWrite((string)($i), "empty");
+            }
+        }
+        for($i = 28 ; $i >= 0 ; $i--){
+            //1.read $i
+            @$info = $logFileOpt->jsonFileRead((string)$i);
+            if($info === false){
+                //wipe down log file
+                @$logFileOpt->fileUnlink();
+            }
+            //2.write to $i+1
+            @$logFileOpt->jsonFileWrite((string)($i+1), $info);
+        }
+        @$logFileOpt->jsonFileWrite("0", console::getRunTimerF() . " " . $string);
+        return true;
+    }
+}
+
+
+class fileOpt{
+    /*
+     * do fileSelect/Read/Write/Create/Unlink and check Exist
+     */
+    private $fileName;
+    private $filePointer;
+    public function fileSelect($fileName){
+        $this->fileName = $fileName;
+    }
+    private function fileOpen($mode){
+        /*
+         * file read modes:
+         *
+         * r  Read  only at BOF
+         * w  Write only at BOF / Create if not exist / Erase if exist
+         * a  Write only at EOF / Create if not exist
+         * x  Create and Write only at BOF / On exist return false and show warning
+         * c  Create and Write only at BOF
+         *
+         * r+ Read write at BOF
+         * w+ Read write at BOF / Create if not exist / Erase if exist
+         * a+ Read write at EOF / Create if not exist
+         * x+ Create and Read write at BOF / On exist return false and show warning
+         * c+ Create and Read write at BOF
+         */
+        $this->filePointer = fopen($this->fileName, $mode);
+        if(!$this->filePointer){
+            if($this->fileExist()){
+                console::intErr("failed to open file \"" . $this->fileName . "\" in mode \"".$mode."\"");
+            }else{
+                console::intErr("failed to open file \"" . $this->fileName . "\" in mode \"".$mode."\": file does not exist");
+            }
+            return false;
+        }
+        return $this->filePointer;
+    }
+    private function fileClose(){
+        if(!fclose($this->filePointer)){
+            console::intErr("failed to close file \"" . $this->fileName . "\"");
+            return false;
+        }
+        return true;
+    }
+    public function fileRead(){
+        if(!$this->fileExist()){
+            console::intErr("\"" . $this->fileName . "\" does not exist in file system");
+            return false;
+        }
+        $file = $this->fileOpen("r");
+        if($file === false){
+            console::intErr("\"" . $this->fileName . "\" cannot be read from file system.123123");
+            return false;
+        }
+        if($this->fileEmpty()){
+            console::intInfo("reading file \"" . $this->fileName . "\" is empty.");
+            return "";
+        }
+        $fileContent = fread($file, filesize($this->fileName));
+        if($fileContent === false){
+            console::intErr("file content is false");
+        }
+
+        $this->fileClose();
+        if($fileContent === false){
+            console::intErr("failed to read file " . $this->fileName);
+        }
+        return $fileContent;
+    }
+    public function jsonFileRead($targetName = false){
+        if(($fileReadContent = $this->fileRead()) !== false){
+            if($fileReadContent === ""){
+                return "";
+            }
+            if(NULL === json_decode($fileReadContent)){
+                console::intErr("json cannot be decode");
+                return false;
+            }
+            if($targetName === false){
+                return json_decode($fileReadContent);
+            }else{
+                return json_decode($fileReadContent)->$targetName;
+            }
+        }
+        return false;
+    }
+    public function jsonFileOverwrite($contentArray){
+        if(!is_object($contentArray) and !is_array($contentArray)){
+            console::intErr("Cannot write file \"" . $this->fileName . "\": not an object or array");
+            return false;
+        }
+        $this->fileOverwrite(json_encode($contentArray));
+        return true;
+    }
+    public function jsonFileWrite($name, $value){
+        if(($someArray = $this->jsonFileRead()) === false){
+            console::intErr("Cannot read file \"" . $this->fileName . "\" in json format: content is \"" . $someArray . "\"");
+        }
+
+        @$someArray->$name = (string)$value;
+        $this->jsonFileOverwrite($someArray);
+        return true;
+    }
+    public function jsonFileHasOwnProperty($key){
+        return !is_null(((array)$this->jsonFileRead())[$key]);
+    }
+    public function fileOverwrite($content){
+        if(!$this->fileExist()){
+            return false;
+        }
+        $file = $this->fileOpen("w");
+        if($file === false){
+            return false;
+        }
+        $writeCount = fwrite($file, $content);
+        $this->fileClose();
+        if($writeCount === false){
+            console::intErr("failed to write file " . $this->fileName);
+            return false;
+        }
+        if($writeCount != strlen($content)){
+            console::intErr(strlen($content) . "byte write excepted, " . $writeCount . "written");
+        }
+        return $writeCount;
+    }
+    public function fileEmpty(){
+        clearstatcache();
+        if(!$this->fileExist()){
+            return false;
+        }
+        if(filesize($this->fileName) === 0){
+            return true;
+        }
+        return false;
+    }
+    public function fileExist(){
+        clearstatcache();
+        return file_exists($this->fileName);
+    }
+    public function fileCreate(){
+        $result = @$this->fileOpen("x"); //error control
+        @$this->fileClose();
+        return $result;
+    }
+    public function fileUnlink(){
+        return unlink($this->fileName);
+    }
+    public function fileLockRO(){
+        $fp = $this->fileOpen("r+");
+        return flock($fp, LOCK_EX);
+    }
+    public function fileLocked(){
+        $fp = @$this->fileOpen("r+");
+        @stream_set_blocking($fp, 0);
+        if($fp === false){
+            //file not exist, terminated
+            return false;
+        }
+        if(!flock($fp, LOCK_EX|LOCK_NB, $wouldBlock)){
+            if($wouldBlock){
+                // another process holds the lock
+                return true;
+            }else{
+                // couldn't lock for another reason, e.g. no such file
+                return false;
+            }
+        }else{
+            // lock obtained
+            flock($fp, LOCK_UN);
+            return false;
+        }
+    }
+    public function getFileLines(){
+        $counter = 1;
+        $filePointer = $this->fileOpen("r");
+        while(!feof($filePointer)){
+            $line = fgets($filePointer, 4096);
+            $counter = $counter + substr_count($line, PHP_EOL);
+        }
+        $this->fileClose();
+        return $counter;
+    }
+    public function getFileContentsByLineNumber($lineNumber){
+        //$lineNumber is 1-based
+        $file = new SplFileObject($this->fileName);
+        $file->seek($lineNumber - 1); // seek to line $lineNumber - 1 (0-based)
+        return $file->current();
+    }
+}
+
+
 class dataOp{
     private $updateInterval = 86400;
-    public  $lengthLimit    = 100000;
+    public  $lengthLimit    = 5000;
     public  $purgeThreshold = 0.9;
     private $filePointer;
     private $fileName       = "eleBalance.csv";
@@ -77,6 +350,7 @@ class dataOp{
             $this->openFile("x+");
             $this->closeFile();
         }
+        echo "New data: " . $time . " " . $balance . "<br/>";
         array_push($content, $time.",".$balance); //插入最新数据
         if(count($content) >= $this->lengthLimit){
             $pos = 1; //指定写入开始点:要丢弃第一行吗？
@@ -268,6 +542,7 @@ class webOp{
             CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true
         ));
+        console::echoNetStatus($this->ch);
         return curl_exec($this->ch);
     }
 }

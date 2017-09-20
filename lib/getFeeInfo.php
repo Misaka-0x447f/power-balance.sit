@@ -38,6 +38,9 @@ class SIT
         ));
 
         $data = curl_exec($ch);
+
+        netStat($ch, $data);
+
         curl_close($ch);
 
         preg_match_all("/(?<=JSESSIONID=).*?(?=;)/", $data, $match);
@@ -48,18 +51,19 @@ class SIT
         } else if (count($match) == 1) {
             $cookie = $match[0];
         } else {
-            echo "获取cookie错误";
+            console::intErr("Error while pulling cookie.");
             return false;
         }
         $this->Cookies["JSESSIONID"] = $cookie;
+        console::intInfo("Login init success.");
         return true;
     }
 
     public function Login()
     {
         //3 times trial
-        for($i=3;$i>0;$i--){
-            if($this->_login_init()){
+        for ($i = 3; $i > 0; $i--) {
+            if ($this->_login_init()) {
                 break;
             }
         }
@@ -86,10 +90,11 @@ class SIT
 
         preg_match("/(?<=iPlanetDirectoryPro=).*?(?=;)/", $data, $match);
         if (count($match) < 1) {
-            echo "登录失败。可能用户名或密码错误";
+            console::intErr("Login failure. Username or password may error.");
             return false;
         }
         $this->Cookies["iPlanetDirectoryPro"] = $match[0];
+        console::intInfo("Login success.");
         return true;
     }
 
@@ -124,22 +129,23 @@ class SIT
         ));
 
         $data = curl_exec($ch);
+        netStat($ch, $data);
         preg_match_all("/(?<=center\">)[0-9\.]+/", $data, $match);
 
         if (count($match) <= 0) {
-            echo "获取电费失败";
+            console::intErr("Failed to pull data");
             return false;
         }
         $match = $match[0];
- 
+
         $rest = $match[1];                // 存款余额
         $butie_rest = $match[2];         // 电补余额(元)
         $total_rest = $match[3];        // 合计余额(元)
         $ele_rest = $match[4];          //可用电量(度)
-        if($ele_rest == Null){
-            echo "数据解析失败";
+        if ($ele_rest == Null) {
+            console::intErr("Parser error");
             return false;
-        }else{
+        } else {
             return json_encode(array(
                 "rest" => $rest,
                 "butie_rest" => $butie_rest,
@@ -156,3 +162,16 @@ $c = new SIT("1610400440", "ptunlock233333");
 $c->Login();
 print_r($c->GetEle(105409));
 */
+
+function netStat($ch, $data)
+{
+    if (curl_getinfo($ch, CURLINFO_HTTP_CODE) != "200") {
+        //not 200, network communication issues
+        console::intErr("Network communication issues");
+        console::intInfo("CONNECTION INFORMATION -----------");
+        console::echoNetStatus($ch);
+        console::intInfo("RESPONSE -------------------------");
+        console::intInfo("    " . $data);
+        console::intInfo("END OF DIAGNOSTIC ----------------");
+    }
+}
