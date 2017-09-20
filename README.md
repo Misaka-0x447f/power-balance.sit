@@ -1,6 +1,9 @@
 # pullPowBalance
 个人项目。拉取学校电费余额的php实现。
 
+# DEMO
+[http://ao.acg.ac/app/pullFeeInfo/functional.html](http://ao.acg.ac/app/pullFeeInfo/functional.html)
+
 ## 开始使用
 1.复制所有文件到安装目标目录
 
